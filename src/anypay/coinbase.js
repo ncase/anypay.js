@@ -2,11 +2,6 @@
 var Q = require('q');
 var httpRequest = require('request');
 
-// Init Mongo Database
-var mongo = require('mongodb').MongoClient,
-    mongoURI = process.env.MONGO_URI,
-    ObjectID = require('mongodb').ObjectID;
-
 // Environment Variables
 var COINBASE_API_KEY = process.env.COINBASE_API_KEY;
 var COINBASE_SECRET = process.env.COINBASE_SECRET;

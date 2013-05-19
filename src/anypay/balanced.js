@@ -2,11 +2,6 @@
 var Q = require('q');
 var httpRequest = require('request');
 
-// Init Mongo Database
-var mongo = require('mongodb').MongoClient,
-    mongoURI = process.env.MONGO_URI,
-    ObjectID = require('mongodb').ObjectID;
-
 // Environment Variables
 var BALANCED_MARKETPLACE_URI = process.env.BALANCED_MARKETPLACE_URI;
 var BALANCED_API_KEY = process.env.BALANCED_API_KEY;

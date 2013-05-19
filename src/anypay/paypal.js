@@ -3,11 +3,6 @@ var Q = require('q');
 var httpRequest = require('request');
 var paypal_ipn = require('paypal-ipn');
 
-// Init Mongo Database
-var mongo = require('mongodb').MongoClient,
-    mongoURI = process.env.MONGO_URI,
-    ObjectID = require('mongodb').ObjectID;
-
 // Environment Variables
 var PAYPAL_RECEIVER_EMAIL = process.env.PAYPAL_RECEIVER_EMAIL;
 var PAYPAL_RECEIVER_CURRENCY = process.env.PAYPAL_RECEIVER_CURRENCY;
