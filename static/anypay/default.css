@@ -1,0 +1,29 @@
+body {
+	margin:50px;
+	font-size: 20px;
+	font-family: Open Sans;
+}
+form {
+	width: 600px;
+	margin:0;
+}
+input {
+	font-size: 20px;
+	font-family: Open Sans;
+	width:100%;
+	padding:5px;
+}
+
+.button {
+	text-align: center;
+	width:150px;
+	padding:10px 20px;
+	margin:10px;
+	border-radius: 100px;
+	background: #000;
+	color: #fff;
+	cursor: pointer;
+}
+.button:hover {
+	background: #333;
+}

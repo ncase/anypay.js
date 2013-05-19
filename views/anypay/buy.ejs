@@ -1,0 +1,50 @@
+<head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+	<link href='/anypay/default.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+	<form id="payment_form">
+
+		Hello, what's your name?
+		<br>
+		<input type="text" name="custom_name" placeholder="[anonymous]">
+		<br><br>
+
+		What email should we send you your link? (Please double check!)
+		<br>
+		<input type="email" name="custom_email" placeholder="your@email.com" required>
+		<br><br>
+
+		<!-- The above two is CUSTOM INFO. It don't matter much. -->
+
+		What would you like to pay? (In USD)
+		<br>
+		<input type="text" name="amount" pattern="\d+(\.\d+)?" required>
+		<br><br>
+		<!-- $5, [$20], $50, $100, Custom -->
+
+	</form>
+
+	How would you like to pay?
+	<br>
+	<div class="button" onclick="pay('balanced')">
+		Credit Card
+	</div>
+	<div class="button" onclick="pay('paypal')">
+		PayPal
+	</div>
+	<div class="button" onclick="pay('coinbase')">
+		Bitcoin
+	</div>
+
+</body>
+
+<script>
+
+var PAYPAL_ACTION = "<%=environment.PAYPAL_ACTION%>";
+var PAYPAL_RECEIVER_EMAIL = "<%=environment.PAYPAL_RECEIVER_EMAIL%>";
+
+</script>
+<script src="/anypay/anypay.js"></script>

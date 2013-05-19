@@ -1,0 +1,178 @@
+<head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<link href='/anypay/default.css' rel='stylesheet' type='text/css'>
+</head>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="/anypay/jquery.payment.js"></script>
+
+<style>
+input.invalid {
+	border: 2px solid red;
+}
+</style>
+<script>
+    jQuery(function($){
+      $('[data-numeric]').payment('restrictNumeric');
+      $('.cc-number').payment('formatCardNumber');
+      $('.cc-exp').payment('formatCardExpiry');
+      $('.cc-cvc').payment('formatCardCVC');
+
+      $('form').submit(function(e){
+        e.preventDefault();
+        $('input').removeClass('invalid');
+        $('.validation').removeClass('passed failed');
+
+        var cardType = $.payment.cardType($('.cc-number').val());
+
+        $('.cc-number').toggleClass('invalid', !$.payment.validateCardNumber($('.cc-number').val()));
+        $('.cc-exp').toggleClass('invalid', !$.payment.validateCardExpiry($('.cc-exp').payment('cardExpiryVal')));
+        $('.cc-cvc').toggleClass('invalid', !$.payment.validateCardCVC($('.cc-cvc').val(), cardType));
+
+        if ( $('input.invalid').length ) {
+          alert("Invalid!");
+        } else {
+          alert("Valid!");
+          charge();
+        }
+      });
+    });
+  </script>
+
+<body style="background:rgba(0,0,0,0.5)">
+	<div style="width:600px;margin:0 auto; height:100%; background:#fff; padding: 0 50px">
+		
+		<br><br>		
+
+		<form novalidate autocomplete="on" id="credit_card_form">
+			
+			Card Number:
+			<br>
+			<input type="text" class="cc-number" pattern="\d*" x-autocompletetype="cc-number" placeholder="•••• •••• •••• ••••" required autofocus>
+			<br><br>
+
+			Expires:
+			<br>
+			<input type="text" class="cc-exp" pattern="\d*" x-autocompletetype="cc-exp" placeholder="MM / YY" required maxlength="9">
+			<br><br>
+
+			Card Code:
+			<br>
+			<input type="text" class="cc-cvc" pattern="\d*" x-autocompletetype="cc-csc" placeholder="CVC" required  autocomplete="off">
+			<br><br>
+
+			<button type="submit">Submit</button>
+
+		</form>
+
+		<div id="message" style="font-size:50px"></div>
+
+	</div>
+</body>
+
+<script src="https://js.balancedpayments.com/v1/balanced.js"></script>
+<script>
+
+var paymentData = {};
+window.addEventListener("message",function(event){
+
+	if(event.origin != window.location.protocol+"//"+window.location.host ){
+		return;
+	}
+
+	paymentData = event.data;
+	console.log(paymentData);
+
+},false);
+
+balanced.init("<%=marketplace_uri%>");
+function charge(){
+
+	var $form = $('#credit_card_form');
+
+	var expiry_date = $('input.cc-exp').payment('cardExpiryVal');
+
+	var creditCardData = {
+		name: paymentData.custom.name,
+	    card_number: $form.find('.cc-number').val(),
+	    expiration_month: expiry_date.month,
+	    expiration_year: expiry_date.year,
+	    security_code: $form.find('cc-csc').val()
+	};
+
+	balanced.card.create(creditCardData, function(response) {
+		switch (response.status) {
+			case 400:
+				// missing or invalid field - check response.error for details
+				console.log(response.error);
+				break;
+			case 404:
+				// your marketplace URI is incorrect
+				console.log(response.error);
+				break;
+			case 201:
+
+				console.log(response.data);
+
+				var chargeData = {
+
+					card_uri: response.data.uri,
+
+					item_id: paymentData.item_id,
+					amount: paymentData.amount,
+					custom: paymentData.custom
+					
+				};
+
+				var serialize = function(obj, prefix) {
+				    var str = [];
+				    for(var prop in obj) {
+				        
+				        var label = prefix
+				        		? prefix + "[" + prop + "]"
+				        		: prop;
+
+				        var value = obj[prop];
+
+				        str.push(
+				        	typeof value == "object"
+				        	? serialize(value, label)
+				            : encodeURIComponent(label) + "=" + encodeURIComponent(value)
+				        );
+
+				    }
+				    return str.join("&");
+				};
+
+				// Objects are serialized through foo[bar]="hello world".
+
+				var serialized = serialize(chargeData);
+
+				var messageDOM = document.getElementById("message");
+
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", "/pay/balanced");
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.onload = function(){
+				    // do something to response
+				    console.log(this.responseText);
+				    messageDOM.innerHTML = "Success!";
+
+				    var transaction = JSON.parse(this.responseText);
+				    window.top.location.href = "/paid?id="+transaction._id;
+
+				};
+				xhr.send(serialized);
+
+				console.log(chargeData);
+				console.log(serialized);
+
+				messageDOM.innerHTML = "...charging...";
+
+				break;
+		}
+	});
+
+}
+
+</script>
